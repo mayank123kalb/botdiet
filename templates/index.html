@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Bot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ecf4f9; /* Light Bluish Background */
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        button {
+            margin: 20px;
+            padding: 20px; /* Increased padding for a bigger button */
+            background-color: #0077cc; /* Bluish Button Color */
+            color: #fff; /* White Text Color */
+            border: none;
+            border-radius: 10px; /* Increased border-radius for rounded corners */
+            cursor: pointer;
+        }
+
+        #chatbox {
+            display: none;
+            width: 450px;
+            height: 480px; /* Reduced height by 10% */
+            border: 1px solid #0077cc; /* Bluish Border */
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #messages {
+            height: 90%;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #0077cc; /* Bluish Border */
+            border-radius: 5px;
+        }
+
+        button#sendButton {
+            width: 18%;
+            background-color: #0077cc; /* Bluish Button Color */
+            color: #fff; /* White Text Color */
+            padding: 10px;
+            margin-left: 2%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        p {
+            color: #0077cc; /* Bluish Text Color */
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        h1 {
+            color: #0077cc; /* Bluish Text Color */
+        }
+
+        #backButton {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #0077cc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<a href=" http://127.0.0.1:5000" id="backButton">Back</a>
+<h1>Diet Bot</h1>
+
+<button onclick="toggleChatbox()">Open Chat</button>
+
+<div id="chatbox">
+    <div style="height: 90%; overflow: auto;" id="messages"></div>
+    <button onclick="sendMessage()" id="sendButton">Send</button>
+    <input type="text" id="user_input" placeholder="Type your message...">
+</div>
+
+<script>
+    function toggleChatbox() {
+        var chatbox = document.getElementById('chatbox');
+        if (chatbox.style.display === "none") {
+            chatbox.style.display = "block";
+        } else {
+            chatbox.style.display = "none";
+        }
+    }
+
+    function sendMessage() {
+        let userMessage = document.getElementById('user_input').value;
+        let messagesDiv = document.getElementById('messages');
+        messagesDiv.innerHTML += '<p>You: ' + userMessage + '</p>';
+
+        // Send message to Flask backend
+        fetch('/ask', {
+            method: 'POST',
+            body: new URLSearchParams('user_message=' + userMessage),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            messagesDiv.innerHTML += '<p>Bot: ' + data.response + '</p>';
+            // Scroll to the bottom to always show the latest message
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        document.getElementById('user_input').value = ''; // Clear the input
+    }
+</script>
+
+</body>
+</html>
